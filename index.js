@@ -1,39 +1,78 @@
 #!/usr/bin/env node
 
-const http = require("http");
-const fs = require("fs");
+const express = require("express");
+const path = require("node:path");
+const app = express();
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {"Content-Type": "text/html"});
-
-    let path = "./views/";
-
-    switch(req.url) {
-        case "/":
-            path += "index.html";
-            break;
-        case "/about":
-            path += "about.html";
-            break;
-        case "/contact-me":
-            path += "contact-me.html";
-            break;
-        default:
-            path += "404.html";
-            break;        
-    }
-
-    fs.readFile(path, (err, data) => {
-        if (err) {
-            console.log(err);
-            res.end();
-        } else {
-            res.end(data);
+app.get("/", (req, res, next) => {
+    const options = {
+        root: path.join(__dirname, "views"),
+        dotfiles: "deny",
+        headers: {
+            "x-timestamp": Date.now(),
+            "x-sent": true
         }
-    });
-    console.log("request made");
+    };
+
+    let fileName = "index.html";
+    
+    res.sendFile(fileName, options, (err) => {
+    if (err) {
+        next(err);
+    } else {
+        console.log("Sent:", fileName);
+    }
+})});
+
+app.get("/about", (req, res, next) => {
+    const options = {
+        root: path.join(__dirname, "views"),
+        dotfiles: "deny",
+        headers: {
+            "x-timestamp": Date.now(),
+            "x-sent": true
+        }
+    };
+    
+    let fileName = "about.html";
+    
+    res.sendFile(fileName, options, (err) => {
+    if (err) {
+        next(err);
+    } else {
+        console.log("Sent:", fileName);
+    }
+})});
+
+app.get("/contact-me", (req, res, next) => {
+    const options = {
+        root: path.join(__dirname, "views"),
+        dotfiles: "deny",
+        headers: {
+            "x-timestamp": Date.now(),
+            "x-sent": true
+        }
+    };
+    
+    let fileName = "contact-me.html";
+    
+    res.sendFile(fileName, options, (err) => {
+    if (err) {
+        next(err);
+    } else {
+        console.log("Sent:", fileName);
+    }
+})});
+
+app.use((req, res) => {
+    res.status(404).sendFile("404.html", { root: "./views" });
 });
 
-server.listen(8080, "localhost", () => {
-    console.log("Listening for requests on port 8080");
+const PORT = 8080;
+
+app.listen(PORT, (error) => {
+    if (error) {
+        throw error;
+    }
+    console.log(`listening for requests on port ${PORT}`);
 });
